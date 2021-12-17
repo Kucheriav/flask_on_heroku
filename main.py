@@ -91,26 +91,73 @@ def index():
 
 @app.route('/result/<variant>')
 def result(variant):
-    return f'''<!doctype html>
+    if variant == '1':
+        return '''<!doctype html>
                     <html lang="en">
                       <head>
                         <meta charset="utf-8">
                         <title>Распределение</title>
+                        <style>
+                               p {
+                                width: 500px; 
+                                font-size: 22px;
+                               }
+                              </style>
                       </head>
                       <body>
-                        <image src="{url_for('static',filename = f'{variant}.jpg')}" >
-                        <img src="/static/{variant}.jpg" alt='Что-то пошло не так'>
+                        <p>1. Нарисовать блок-схему для алгоритма: здороваемся, спрашиваем, какой сейчас день. Ответ пользователя считываем в переменную day. Если он отвечает суббота или воскресение – говорим «ура выходные». Иначе – говорим «придется в школу вставать!»
+                        </p><p>
+                        2. Написать программу по блок-схеме. Рекомендуется не просто прописать ее в тетрадке, а до этого попробовать ее позапускать. Для этих целей подойдет онлайн интерпретатор python или python IDLE с официального сайта или PyCharm Community Edition
+                        </p>
+                      </body>
+                    </html>'''
+    if variant == '2':
+        return '''<!doctype html>
+                    <html lang="en">
+                      <head>
+                        <meta charset="utf-8">
+                        <title>Распределение</title>
+                        <style>
+                               p {
+                                width: 500px; 
+                                font-size: 22px;
+                               }
+                              </style>
+                      </head>
+                      <body>
+                        <p>1. Нарисовать блок-схему для алгоритма: здороваемся, спрашиваем, какой у пользователя любимый предмет. Ответ пользователя считываем в переменную subject. Если он отвечает «информатика» или «физкультура» (например) – говорим «клево, у меня тоже». Иначе – говорим «это для меня слишком сложно»
+                        </p><p>
+                        2. Написать программу по блок-схеме. Рекомендуется не просто прописать ее в тетрадке, а до этого попробовать ее позапускать. Для этих целей подойдет онлайн интерпретатор python или python IDLE с официального сайта или PyCharm Community Edition
+                        </p>
+                      </body>
+                    </html>'''
+    if variant == '3':
+        return '''<!doctype html>
+                    <html lang="en">
+                      <head>
+                        <meta charset="utf-8">
+                        <title>Распределение</title>
+                        <style>
+                               p {
+                                width: 500px; 
+                                font-size: 22px;
+                               }
+                              </style>
+                      </head>
+                      <body>
+                        <p>1. Нарисовать блок-схему для алгоритма: здороваемся, спрашиваем у пользователя как дела. Ответ пользователя считываем в переменную mood. Если он отвечает «хорошо» или «неплохо» (например) – говорим «рад за тебя». Иначе – говорим «не грусти, все будет хорошо»
+                        </p><p>
+                        2. Написать программу по блок-схеме. Рекомендуется не просто прописать ее в тетрадке, а до этого попробовать ее позапускать. Для этих целей подойдет онлайн интерпретатор python или python IDLE с официального сайта или PyCharm Community Edition
+                        </p>
                       </body>
                     </html>'''
 
 
-
-
 # for local tests
-# if __name__ == '__main__':
-#     app.run(port=8080, host='127.0.0.1')
+if __name__ == '__main__':
+    app.run(port=8080, host='127.0.0.1')
 
 # for heroku
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+# if __name__ == '__main__':
+#     port = int(os.environ.get("PORT", 5000))
+#     app.run(host='0.0.0.0', port=port)
