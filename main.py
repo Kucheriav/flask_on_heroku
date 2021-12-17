@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, url_for
 import os
 
 
@@ -98,6 +98,7 @@ def result(variant):
                         <title>Распределение</title>
                       </head>
                       <body>
+                        <image src="{url_for('static',filename = f'{variant}.jpg')}" >
                         <img src="/static/{variant}.jpg" alt='Что-то пошло не так'>
                       </body>
                     </html>'''
