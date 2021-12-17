@@ -1,45 +1,19 @@
 from flask import Flask, redirect, request
 import os
-seven_a_list = ['Авдеев Илья',
-'Алексеева Евгения',
-'Алферова Варвара',
-'Басулина Евангелина',
-'Безверхний Артём',
-'Богоявленская Анна',
-'Бычков Герман',
-'Волняков Александр',
-'Демидов Иван',
-'Ермилова Елена',
-'Иванов Андрей',
-'Карпунина Ульяна',
-'Карташова Дарья',
-'Касьянова Арина',
-'Кирюхина Мария',
-'Комлева Анастасия',
-'Королев Михаил',
-'Кузнецова Ксения',
-'Кунька Екатерина',
-'Лаврушина Ангелина',
-'Мозгин Тихон',
-'Ненашев Владимир',
-'Орешко Валерий',
-'Помосова Виктория',
-'Рожкова Арина',
-'Сучков Артем',
-'Сучкова Валерия',
-'Терехов Кирилл',
-'Федоров Родион',
-'Хомич София М.',
-'Шолохова Елизавета',
-'Шундрина Елизавета',
-'Юрцев Кирилл',
-'Юрчак Глеб',
-'Яковлева Арина А']
-seven_a_dict = {}
-c = 0
-for name in seven_a_list:
-    seven_a_dict[name.split()[0]] = c % 2 + 1
-    c += 1
+
+
+with open('students.txt', encoding='utf8') as file:
+    students = file.read().split('\n')
+students_dict = {}
+students_grades = []
+for student in students:
+    temp = student.split()
+    if temp[0] not in students_dict:
+        students_dict[temp[0]] = [temp[1:]]
+        students_grades.append(temp[0])
+    else:
+        students_dict[temp[0]].append(temp[1])
+
 app = Flask(__name__)
 
 
@@ -58,17 +32,27 @@ def index():
                         <title>Распределение</title>
                       </head>
                       <body>
-                        <h1>Введите фамилию</h1>
                         <form method="post">
-                            <input name="code">
+                            <select name="grade" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                              <option selected>Выберите класс</option>
+                              <option value="1">9а</option>
+                              <option value="2">9б</option>
+                              <option value="3">9в</option>
+                            </select>                  
+                            <h1>Введите фамилию</h1>                        
+                            <input name="surname">
                             <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
                         </form>
                       </body>
                     </html>'''
     elif request.method == 'POST':
-        data = request.form['code'].capitalize().strip().replace('ё', 'е')
-        if data in seven_a_dict:
-            return redirect(f'result/{seven_a_dict[data]}')
+        surname = request.form['surname'].capitalize().strip().replace('ё', 'е')
+        print(surname)
+        grade = students_grades[int(request.form['grade']) -1]
+        print(surname, grade)
+        if surname in students_dict[grade]:
+            variant = students_dict[grade].index(surname) % 2 + 1
+            return redirect(f'result/{variant}')
         else:
             return '''<!doctype html>
                                 <html lang="en">
@@ -83,14 +67,21 @@ def index():
                                   <body>
                                     <h1>Ошибка ввода: вводите только фамилию и только в именительном падеже</h1>
                                     <form method="post">
-                                        <input name="code">
+                                        <select name="grade" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                                          <option selected>Выберите класс</option>
+                                          <option value="1">9а</option>
+                                          <option value="2">9б</option>
+                                          <option value="3">9в</option>
+                                        </select>             
+                                        <h1>Введите фамилию</h1>                                    
+                                        <input name="surname">
                                         <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
                                     </form>
                                   </body>
                                 </html>'''
-@app.route('/result/<code>')
-def result(code):
-    if code == '1':
+@app.route('/result/<variant>')
+def result(variant):
+    if variant == '1':
         return '''<!doctype html>
                         <html lang="en">
                           <head>
@@ -98,11 +89,11 @@ def result(code):
                             <title>Распределение</title>
                           </head>
                           <body>
-                            <h1>Ваша ссылка на тест</h1>
+                            <h1>111111Ваша ссылка на тест</h1>
                             <a href='https://forms.gle/qmkVmLMKGkcx6d4v7'> начать </a>
                           </body>
                         </html>'''
-    elif code == '2':
+    elif variant == '2':
         return '''<!doctype html>
                                 <html lang="en">
                                   <head>
@@ -110,7 +101,7 @@ def result(code):
                                     <title>Распределение</title>
                                   </head>
                                   <body>
-                                    <h1>Ваша ссылка на тест</h1>
+                                    <h1>22222Ваша ссылка на тест</h1>
                                     <a href='https://forms.gle/etmZi7nsngPXektL8'> начать </a>
                                   </body>
                                 </html>'''
@@ -122,17 +113,17 @@ def result(code):
                                     <title>Распределение</title>
                                   </head>
                                   <body>
-                                    <h1>Неправильный код!</h1>
+                                    <h1>Forbidden!</h1>
                                   </body>
                                 </html>'''
 
 
 
 # for local tests
-# if __name__ == '__main__':
-#     app.run(port=8080, host='127.0.0.1')
+if __name__ == '__main__':
+    app.run(port=8080, host='127.0.0.1')
 
 # for heroku
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+# if __name__ == '__main__':
+#     port = int(os.environ.get("PORT", 5000))
+#     app.run(host='0.0.0.0', port=port)
