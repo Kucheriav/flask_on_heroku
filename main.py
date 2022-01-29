@@ -1,163 +1,72 @@
-from flask import Flask, redirect, request, url_for
+from flask import Flask, redirect, request, url_for, render_template
 import os
-
-
-with open('students.txt', encoding='utf8') as file:
-    students = file.read().split('\n')
-students_dict = {}
-students_grades = []
-for student in students:
-    temp = student.split()
-    if temp[0] not in students_dict:
-        students_dict[temp[0]] = [temp[1]]
-        students_grades.append(temp[0])
-    else:
-        students_dict[temp[0]].append(temp[1])
 app = Flask(__name__)
+#возможны проблемы с 10 11. точно будут с про.группами
+#пока берем с веб-морды название класса целиком и передаем :-1
+#в определитель вариантов и def task
+VARIANTS_DICT = {
+    '7': 2,
+    '9': 3
+}
+students_dict = {}
+students_grades_list = []
+
+def upload_students(parallel=None):
+    with open('students.txt', encoding='utf8') as file:
+        students = file.read().split('\n')
+    for student in students:
+        grade, name = student.split('\t')
+        name = name.replace('ё', 'е')
+        if parallel and not grade.startswith(parallel):
+            continue
+        if grade not in students_dict:
+            students_dict[grade] = [name]
+            students_grades_list.append(grade)
+        else:
+            students_dict[grade].append(name)
+    students_grades_list.sort()
 
 
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/index')
 def index():
     if request.method == 'GET':
-        return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                        <meta charset="utf-8">
-                        <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-              integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-              crossorigin="anonymous">
-                        <style>
-                               form {
-                                width: 500px; 
-                               }
-                              </style>
-                        <title>Распределение</title>
-                      </head>
-                      <body>
-                        <form method="post">
-                            <h1>Выберите класс</h1> 
-                            <select name="grade" class="form-select">
-                              <option value="1">9а</option>
-                              <option value="2">9б</option>
-                              <option value="3">9в</option>
-                            </select>                  
-                            <h1>Введите фамилию</h1>                        
-                            <input name="surname">
-                            <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
-                        </form>
-                      </body>
-                    </html>'''
+        return render_template('index.html', students_grades_list=students_grades_list, error=False, guess=False)
     elif request.method == 'POST':
-        surname = request.form['surname'].capitalize().strip().replace('ё', 'е')
-        print(surname)
-        grade = students_grades[int(request.form['grade']) -1]
-        print(surname, grade)
-        if surname in students_dict[grade]:
-            variant = students_dict[grade].index(surname) % 3 + 1
-            return redirect(f'result/{variant}')
+        user_name = request.form['surname'].strip().replace('ё', 'е')
+        print(user_name)
+        #форма возвращает номер выбора с единички. user_grade с буквой
+        user_grade = students_grades_list[int(request.form['grade']) - 1]
+        print(user_name, user_grade)
+        if user_name in students_dict[user_grade]:
+            #по ключу берем список. в нем по элементу - номер. модулируем кол-вом варинатов для этой паралелли без буквы
+            variant = students_dict[user_grade].index(user_name) % VARIANTS_DICT[user_grade[:-1]] + 1
+            return redirect(f'task/{user_grade}/{variant}')
         else:
-            return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                        <meta charset="utf-8">
-                        <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-              integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-              crossorigin="anonymous">
-                        <style>
-                               form {
-                                width: 500px; 
-                               }
-                              </style>
-                        <title>Распределение</title>
-                      </head>
-                      <body>
-                        <form method="post">
-                            <h1>Ошибка ввода: проверьте класс и фамилию!</h1>
-                            <h1>Выберите класс</h1> 
-                            <select name="grade" class="form-select">
-                              <option value="1">9а</option>
-                              <option value="2">9б</option>
-                              <option value="3">9в</option>
-                            </select>                  
-                            <h1>Введите фамилию</h1>                        
-                            <input name="surname">
-                            <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
-                        </form>
-                      </body>
-                    </html>'''
+            print(students_dict[user_grade])
+            user_name = user_name.strip().lower().split()
+            for student_name in students_dict[user_grade]:
+                if user_name[0] in student_name.lower():
+                    return render_template('index.html', students_grades_list=students_grades_list,
+                                           error=True, guess=student_name)
+            if len(user_name) == 2:
+                for student_name in students_dict[user_grade]:
+                    if user_name[1] in student_name.lower():
+                        return render_template('index.html', students_grades_list=students_grades_list,
+                                               error=True, guess=student_name)
+            return render_template('index.html', students_grades_list=students_grades_list, error=True, guess=False)
 
-@app.route('/result/<variant>')
-def result(variant):
-    if variant == '1':
-        return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                        <meta charset="utf-8">
-                        <title>Распределение</title>
-                        <style>
-                               p {
-                                width: 500px; 
-                                font-size: 22px;
-                               }
-                              </style>
-                      </head>
-                      <body>
-                        <p>1. Нарисовать блок-схему для алгоритма: здороваемся, спрашиваем, какой сейчас день. Ответ пользователя считываем в переменную day. Если он отвечает суббота или воскресение – говорим «ура выходные». Иначе – говорим «придется в школу вставать!»
-                        </p><p>
-                        2. Написать программу по блок-схеме. Рекомендуется не просто прописать ее в тетрадке, а до этого попробовать ее позапускать. Для этих целей подойдет онлайн интерпретатор python или python IDLE с официального сайта или PyCharm Community Edition
-                        </p>
-                      </body>
-                    </html>'''
-    if variant == '2':
-        return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                        <meta charset="utf-8">
-                        <title>Распределение</title>
-                        <style>
-                               p {
-                                width: 500px; 
-                                font-size: 22px;
-                               }
-                              </style>
-                      </head>
-                      <body>
-                        <p>1. Нарисовать блок-схему для алгоритма: здороваемся, спрашиваем, какой у пользователя любимый предмет. Ответ пользователя считываем в переменную subject. Если он отвечает «информатика» или «физкультура» (например) – говорим «клево, у меня тоже». Иначе – говорим «это для меня слишком сложно»
-                        </p><p>
-                        2. Написать программу по блок-схеме. Рекомендуется не просто прописать ее в тетрадке, а до этого попробовать ее позапускать. Для этих целей подойдет онлайн интерпретатор python или python IDLE с официального сайта или PyCharm Community Edition
-                        </p>
-                      </body>
-                    </html>'''
-    if variant == '3':
-        return '''<!doctype html>
-                    <html lang="en">
-                      <head>
-                        <meta charset="utf-8">
-                        <title>Распределение</title>
-                        <style>
-                               p {
-                                width: 500px; 
-                                font-size: 22px;
-                               }
-                              </style>
-                      </head>
-                      <body>
-                        <p>1. Нарисовать блок-схему для алгоритма: здороваемся, спрашиваем у пользователя как дела. Ответ пользователя считываем в переменную mood. Если он отвечает «хорошо» или «неплохо» (например) – говорим «рад за тебя». Иначе – говорим «не грусти, все будет хорошо»
-                        </p><p>
-                        2. Написать программу по блок-схеме. Рекомендуется не просто прописать ее в тетрадке, а до этого попробовать ее позапускать. Для этих целей подойдет онлайн интерпретатор python или python IDLE с официального сайта или PyCharm Community Edition
-                        </p>
-                      </body>
-                    </html>'''
+@app.route('/task/<grade>/<variant>')
+def task(grade, variant):
+    return render_template('tasks.html', grade=grade[:-1], variant=variant)
 
 
 # for local tests
-# if __name__ == '__main__':
-#     app.run(port=8080, host='127.0.0.1')
+if __name__ == '__main__':
+    upload_students()
+    app.run(port=8080, host='127.0.0.1')
 
 # for heroku
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+# if __name__ == '__main__':
+#     port = int(os.environ.get("PORT", 5000))
+#     app.run(host='0.0.0.0', port=port)
