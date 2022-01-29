@@ -69,4 +69,5 @@ def task(grade, variant):
 # for heroku
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
     app.run(host='0.0.0.0', port=port)
