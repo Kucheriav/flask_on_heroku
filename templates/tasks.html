@@ -45,6 +45,27 @@ integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKm
         {% else %}
             <p>Ошибка выдача сслыки. Обратитесь к учителю!Код ошибки: {{grade}}{{variant}}2</p>
         {% endif %}
+       {% elif grade=='10про' %}
+        <h1>Успехов в выполнении задания!</h1>
+        {% if variant=='1' %}
+           <a href="https://drive.google.com/file/d/1RFKJtVB32HcR8d2vgjnAbWxlTaAgRz2X/view?usp=sharing">
+                Ваша ссылка на задание
+            </a>
+        {% elif variant=='2' %}
+            <a href="https://drive.google.com/file/d/1LOOVR8hEcJn6rYEFq8Dut45HFSqFQSht/view?usp=sharing">
+                Ваша ссылка на задание
+            </a>
+        {% elif variant=='3' %}
+            <a href="https://drive.google.com/file/d/1AYPOjLF4LR0KVblBfUVNY787lXq-D8qq/view?usp=sharing">
+                Ваша ссылка на задание
+            </a>
+        {% elif variant=='4' %}
+            <a href="https://drive.google.com/file/d/1GzHi9bNDskUOKDC527HOLHRt_4x5E01M/view?usp=sharing">
+                Ваша ссылка на задание
+            </a>
+        {% else %}
+            <p>Ошибка выдача сслыки. Обратитесь к учителю!Код ошибки: {{grade}}{{variant}}2</p>
+        {% endif %}
       {% else %}
         <p>Ошибка выдача сслыки. Обратитесь к учителю!Код ошибки: {{grade}}{{variant}}3</p>
       {% endif %}

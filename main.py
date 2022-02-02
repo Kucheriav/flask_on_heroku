@@ -1,12 +1,14 @@
-from flask import Flask, redirect, request, url_for, render_template
+from flask import Flask, redirect, request, render_template
 import os
 app = Flask(__name__)
 #возможны проблемы с 10 11. точно будут с про.группами
 #пока берем с веб-морды название класса целиком и передаем :-1
 #в определитель вариантов и def task
+#суперкостыльное решение - в файле students их класс с лишним пробелом на конце
 VARIANTS_DICT = {
     '7': 2,
-    '9': 3
+    '9': 3,
+    '10про' : 4
 }
 students_dict = {}
 students_grades_list = []
@@ -20,6 +22,7 @@ def upload_students(parallel=None):
         if parallel and not grade.startswith(parallel):
             continue
         if grade not in students_dict:
+            print(grade)
             students_dict[grade] = [name]
             students_grades_list.append(grade)
         else:
@@ -65,7 +68,8 @@ def task(grade, variant):
 # if __name__ == '__main__':
 #     upload_students()
 #     app.run(port=8080, host='127.0.0.1')
-#
+
+
 # for heroku
 if __name__ == '__main__':
     upload_students()
