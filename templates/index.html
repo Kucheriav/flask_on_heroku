@@ -1,33 +1,20 @@
-<!doctype html>
-    <html lang="ru">
-      <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
-        <style>
-               form {
-                width: 500px;
-               }
-              </style>
-        <title>Распределение</title>
-      </head>
-      <body>
-        <form method="post">
-            {% if error == True %}
-                <h1>Ошибка ввода: проверьте класс и фамилию!</h1>
-            {% endif %}
-            {% if guess != False %}
-                <h1>Возожно вы имели ввиду "{{guess}}"</h1>
-            {% endif %}
-            <h1>Выберите класс</h1>
-            <select name="grade" class="form-select">
-                {% for students_grade in students_grades_list %}
-                    <option value={{loop.index}}>{{students_grade}}</option>
-                 {% endfor %}
-            </select>
-            <h1>Введите фамилию и имя</h1>
-            <input name="surname">
-            <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
-        </form>
-      </body>
-    </html>
+{% extends "base.html" %}
+{% block content %}
+    <form method="post" style="width: 500px">
+        {% if error == True %}
+            <h1 style="color: red">Ошибка ввода: проверьте класс и фамилию!</h1>
+        {% endif %}
+        {% if guess != False %}
+            <h1>Возожно вы имели ввиду "{{guess}}"</h1>
+        {% endif %}
+        <h1>Выберите класс</h1>
+        <select name="grade" class="form-select">
+            {% for students_grade in students_grades_list %}
+                <option value={{loop.index}}>{{students_grade}}</option>
+             {% endfor %}
+        </select>
+        <h1>Введите фамилию и имя</h1>
+        <input name="surname">
+        <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
+    </form>
+{% endblock %}

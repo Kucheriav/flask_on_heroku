@@ -1,15 +1,7 @@
 from flask import Flask, redirect, request, render_template
 import os
+
 app = Flask(__name__)
-#возможны проблемы с 10 11. точно будут с про.группами
-#пока берем с веб-морды название класса целиком и передаем :-1
-#в определитель вариантов и def task
-#суперкостыльное решение - в файле students их класс с лишним пробелом на конце
-VARIANTS_DICT = {
-    '7': 2,
-    '9': 3,
-    '10про' : 4
-}
 students_dict = {}
 students_grades_list = []
 
@@ -17,16 +9,13 @@ def upload_students(parallel=None):
     with open('students.txt', encoding='utf8') as file:
         students = file.read().split('\n')
     for student in students:
-        grade, name = student.split('\t')
-        name = name.replace('ё', 'е')
+        grade, surn, name, login, passw = student.split()
+        name = ' '.join(map(lambda x: x.replace("ё", 'е'), [surn, name]))
         if parallel and not grade.startswith(parallel):
             continue
-        if grade not in students_dict:
-            print(grade)
-            students_dict[grade] = [name]
+        students_dict[f'{grade}{name}'] = {'login': login, 'passw': passw}
+        if grade not in students_grades_list:
             students_grades_list.append(grade)
-        else:
-            students_dict[grade].append(name)
     students_grades_list.sort()
 
 
@@ -34,30 +23,24 @@ def upload_students(parallel=None):
 @app.route('/index')
 def index():
     if request.method == 'GET':
-        return render_template('index.html', students_grades_list=students_grades_list, error=False, guess=False)
+        return render_template('index.html', title='Распределение',
+                               students_grades_list=students_grades_list, error=False, guess=False)
     elif request.method == 'POST':
         user_name = request.form['surname'].strip().replace('ё', 'е')
         print(user_name)
         #форма возвращает номер выбора с единички. user_grade с буквой
         user_grade = students_grades_list[int(request.form['grade']) - 1]
         print(user_name, user_grade)
-        if user_name in students_dict[user_grade]:
-            #по ключу берем список. в нем по элементу - номер. модулируем кол-вом варинатов для этой паралелли без буквы
-            variant = students_dict[user_grade].index(user_name) % VARIANTS_DICT[user_grade[:-1]] + 1
-            return redirect(f'task/{user_grade}/{variant}')
+        if students_dict.get(f'{user_grade}{user_name}'):
+            return redirect(f'info/{user_grade}/{user_name}')
         else:
-            print(students_dict[user_grade])
-            user_name = user_name.strip().lower().split()
-            for student_name in students_dict[user_grade]:
-                if user_name[0] in student_name.lower():
-                    return render_template('index.html', students_grades_list=students_grades_list,
-                                           error=True, guess=student_name)
-            if len(user_name) == 2:
-                for student_name in students_dict[user_grade]:
-                    if user_name[1] in student_name.lower():
-                        return render_template('index.html', students_grades_list=students_grades_list,
-                                               error=True, guess=student_name)
-            return render_template('index.html', students_grades_list=students_grades_list, error=True, guess=False)
+            return render_template('index.html', students_grades_list=students_grades_list, error=True, guess=False,
+                                   title='Распределение')
+
+@app.route('/info/<grade>/<name>')
+def info(grade, name):
+    return render_template('info.html', title='Данные учетки', login=students_dict[f'{grade}{name}']['login'],
+                           passw=students_dict[f'{grade}{name}']['passw'])
 
 @app.route('/task/<grade>/<variant>')
 def task(grade, variant):
