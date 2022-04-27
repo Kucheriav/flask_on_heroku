@@ -1,5 +1,6 @@
 from flask import Flask, redirect, request, render_template
 import os
+#this is correct version of account manager
 
 app = Flask(__name__)
 students_dict = {}
