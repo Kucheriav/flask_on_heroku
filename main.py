@@ -64,15 +64,15 @@ def task(grade, variant):
     return render_template('tasks.html', grade=grade[:-1], variant=variant)
 
 
-# for local tests
-# if __name__ == '__main__':
-#     upload_students()
-#     app.run(port=8080, host='127.0.0.1')
 
-
-# for heroku
 if __name__ == '__main__':
     upload_students()
-    port = int(os.environ.get("PORT", 5000))
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
-    app.run(host='0.0.0.0', port=port)
+    app.run(port=8080, host='127.0.0.1')
+
+
+# # for heroku
+# if __name__ == '__main__':
+#     upload_students()
+#     port = int(os.environ.get("PORT", 5000))
+#     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
+#     app.run(host='0.0.0.0', port=port)
